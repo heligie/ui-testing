@@ -70,6 +70,30 @@ public class Tests
         "На странице нет заголовка 'Сообщества'");
     }
 
+    [Test]
+    public void AddFolderButton_TriggersModalWindow_InFileSection()
+    {
+        _driver.Navigate().GoToUrl("https://staff-testing.testkontur.ru/files");
+        _wait.Until(ExpectedConditions.UrlToBe("https://staff-testing.testkontur.ru/files"));
+
+        var dropdownButton = _driver.FindElement(By.CssSelector("button[type='button']"));
+        dropdownButton.Click();
+        _wait.Until(ExpectedConditions.ElementIsVisible(By.CssSelector("[data-tid='ScrollContainer__inner']")));
+
+        var addFolderButton = _driver.FindElement(By.CssSelector("[data-tid='CreateFolder']"));
+        addFolderButton.Click();
+        _wait.Until(ExpectedConditions.ElementIsVisible(By.CssSelector("[data-tid='modal-content']")));
+
+        var modalPageHeader = _driver.FindElement(By.CssSelector("[data-tid='ModalPageHeader']"));
+        var modalInput = _driver.FindElement(By.CssSelector("[data-tid='ModalPageBody'] input[placeholder='Новая папка']"));
+
+        Assert.Multiple(() => 
+        {
+            Assert.That(modalPageHeader.Text, Is.EqualTo("Создать"), "У модального окна нет заголовка 'Создать'");
+            Assert.That(modalInput, Is.Not.Null, "Поле ввода для названия папки не найдено");
+        });
+    }
+
     [TearDown]
     public void TearDown()
     {
