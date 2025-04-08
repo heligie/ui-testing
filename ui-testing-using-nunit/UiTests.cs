@@ -29,6 +29,11 @@ public class Tests
         _wait.Until(ExpectedConditions.UrlToBe("https://staff-testing.testkontur.ru/news"));
     }
 
+    private void MobileEmulation(int width, int height)
+    {
+        _driver.Manage().Window.Size = new System.Drawing.Size(width, height);
+    }
+
     [Test]
     public void ProfileEdit_Accessible_ThroughUserToolbar()
     {
@@ -44,6 +49,25 @@ public class Tests
 
         Assert.That(profileEditPageTitle.Text, Is.EqualTo("Редактирование профиля"),
         "На странице нет заголовка 'Редактирование профиля'");
+    }
+
+    [Test]
+    public void Communities_Accessible_ThroughBurgerMenu()
+    {
+        MobileEmulation(375, 812);
+
+        var burgerMenu = _driver.FindElement(By.CssSelector("[data-tid='SidebarMenuButton']"));
+        burgerMenu.Click();
+        _wait.Until(ExpectedConditions.ElementIsVisible(By.CssSelector("[data-tid='SidePage__root']")));
+
+        var communitiesLink = _driver.FindElement(By.CssSelector("[data-tid='SidePageBody'] [data-tid='Community']"));
+        communitiesLink.Click();
+        _wait.Until(ExpectedConditions.UrlToBe("https://staff-testing.testkontur.ru/communities"));
+
+        var communitiesPageTitle = _driver.FindElement(By.CssSelector("[data-tid='Title']"));
+
+        Assert.That(communitiesPageTitle.Text, Is.EqualTo("Сообщества"),
+        "На странице нет заголовка 'Сообщества'");
     }
 
     [TearDown]
