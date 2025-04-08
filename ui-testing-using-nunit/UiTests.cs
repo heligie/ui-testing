@@ -15,7 +15,6 @@ public class Tests
     {
         _driver = new ChromeDriver();
         _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(15);
-
         _wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(15));
 
         Login("", "");
@@ -27,14 +26,24 @@ public class Tests
         _driver.FindElement(By.Id("Username")).SendKeys(username);
         _driver.FindElement(By.Id("Password")).SendKeys(password);
         _driver.FindElement(By.Name("button")).Click();
-
         _wait.Until(ExpectedConditions.UrlToBe("https://staff-testing.testkontur.ru/news"));
     }
 
     [Test]
-    public void Test1()
+    public void ProfileEdit_Accessible_ThroughUserToolbar()
     {
-        Assert.Pass();
+        var userToolbar = _driver.FindElement(By.CssSelector("[data-tid='Avatar']"));
+        userToolbar.Click();
+        _wait.Until(ExpectedConditions.ElementIsVisible(By.CssSelector("[data-tid='PopupContent']")));
+
+        var profileEditLink = _driver.FindElement(By.CssSelector("[data-tid='ProfileEdit']"));
+        profileEditLink.Click();
+        _wait.Until(ExpectedConditions.UrlToBe("https://staff-testing.testkontur.ru/profile/settings/edit"));
+    
+        var profileEditPageTitle = _driver.FindElement(By.CssSelector("[data-tid='Title']"));
+
+        Assert.That(profileEditPageTitle.Text, Is.EqualTo("Редактирование профиля"),
+        "На странице нет заголовка 'Редактирование профиля'");
     }
 
     [TearDown]
