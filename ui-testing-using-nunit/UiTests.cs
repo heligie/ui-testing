@@ -18,16 +18,6 @@ public class Tests
     private IWebDriver _driver;
     private WebDriverWait _wait;
 
-    [SetUp]
-    public void Setup()
-    {
-        _driver = new ChromeDriver();
-        _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
-        _wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(15));
-
-        Login("", "");
-    }
-
     private void Login(string username, string password) 
     {
         _driver.Navigate().GoToUrl(BASE_URL);
@@ -40,6 +30,48 @@ public class Tests
     private void MobileEmulation(int width, int height)
     {
         _driver.Manage().Window.Size = new System.Drawing.Size(width, height);
+    }
+
+    private void CreateCommunity(string name)
+    {
+        _driver.Navigate().GoToUrl(COMMUNITIES_URL);
+
+        var createButton = _driver.FindElement(By.CssSelector("[data-tid='PageHeader']"))
+                                    .FindElement(By.XPath("//button[contains(text(),'СОЗДАТЬ')]"));
+        createButton.Click();
+        _wait.Until(ExpectedConditions.ElementIsVisible(By.CssSelector("[data-tid='Name']")));
+
+        var nameInput = _driver.FindElement(By.CssSelector("[data-tid='Name'] textarea[placeholder='Название сообщества']"));
+        nameInput.SendKeys(name);
+
+        var submitButton = _driver.FindElement(By.CssSelector("[data-tid='CreateButton'] button[type='button']"));
+        submitButton.Click();
+    }
+
+    private void DeleteCommunity() 
+    {
+        var deleteButton = _driver.FindElement(By.CssSelector("[data-tid='DeleteButton']"));
+        deleteButton.Click();
+
+        var modalDeleteButton = _driver.FindElement(By.CssSelector("[data-tid='ModalPageFooter'] [data-tid='DeleteButton']"));
+        modalDeleteButton.Click();
+    }
+
+    [SetUp]
+    public void Setup()
+    {
+        _driver = new ChromeDriver();
+        _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
+        _wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(15));
+
+        Login("", "");
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        _driver?.Quit();
+        _driver?.Dispose();
     }
 
     [Test]
@@ -140,30 +172,15 @@ public class Tests
     {
         var expectedName = $"AT_Новое_Сообщество_{DateTime.Now:yyyyMMdd_HHmmss}";
 
-        _driver.Navigate().GoToUrl(COMMUNITIES_URL);
+        CreateCommunity(expectedName);
 
-        var createButton = _driver.FindElement(By.CssSelector("[data-tid='PageHeader']"))
-                                    .FindElement(By.XPath("//button[contains(text(),'СОЗДАТЬ')]"));
-        createButton.Click();
-        _wait.Until(ExpectedConditions.ElementIsVisible(By.CssSelector("[data-tid='Name']")));
-
-        var nameInput = _driver.FindElement(By.CssSelector("[data-tid='Name'] textarea[placeholder='Название сообщества']"));
-        nameInput.SendKeys(expectedName);
-        
-        var submitButton = _driver.FindElement(By.CssSelector("[data-tid='CreateButton'] button[type='button']"));
-        submitButton.Click();
         _wait.Until(ExpectedConditions.ElementIsVisible(By.CssSelector("[data-tid='PageHeader'] [data-tid='Title']")));
 
         var actualName = _driver.FindElement(By.CssSelector("[data-tid='Title'] a"));
 
         Assert.That(actualName.Text, Is.EqualTo(expectedName), 
         "В заголовке 'Управление сообществом «_Name»' expectedName и actualName не совпадают");
-    }   
 
-    [TearDown]
-    public void TearDown()
-    {
-        _driver?.Quit();
-        _driver?.Dispose();
-    }
+        DeleteCommunity();
+    }   
 }
