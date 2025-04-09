@@ -7,6 +7,14 @@ namespace ui_testing_using_nunit;
 
 public class Tests
 {
+    const string BASE_URL = "https://staff-testing.testkontur.ru/";
+    const string NEWS_URL = $"{BASE_URL}news";
+    const string PROFILE_EDIT_URL = $"{BASE_URL}profile/settings/edit";
+    const string COMMUNITIES_URL = $"{BASE_URL}communities";
+    const string FILES_URL = $"{BASE_URL}files";
+    const string DOCUMENTS_URL = $"{BASE_URL}documents";
+    const string TASKS_TAB_URL = $"{DOCUMENTS_URL}?activeTab=Tasks";
+    
     private IWebDriver _driver;
     private WebDriverWait _wait;
 
@@ -22,11 +30,11 @@ public class Tests
 
     private void Login(string username, string password) 
     {
-        _driver.Navigate().GoToUrl("https://staff-testing.testkontur.ru/");
+        _driver.Navigate().GoToUrl(BASE_URL);
         _driver.FindElement(By.Id("Username")).SendKeys(username);
         _driver.FindElement(By.Id("Password")).SendKeys(password);
         _driver.FindElement(By.Name("button")).Click();
-        _wait.Until(ExpectedConditions.UrlToBe("https://staff-testing.testkontur.ru/news"));
+        _wait.Until(ExpectedConditions.UrlToBe(NEWS_URL));
     }
 
     private void MobileEmulation(int width, int height)
@@ -43,7 +51,7 @@ public class Tests
 
         var profileEditLink = _driver.FindElement(By.CssSelector("[data-tid='ProfileEdit']"));
         profileEditLink.Click();
-        _wait.Until(ExpectedConditions.UrlToBe("https://staff-testing.testkontur.ru/profile/settings/edit"));
+        _wait.Until(ExpectedConditions.UrlToBe(PROFILE_EDIT_URL));
     
         var profileEditPageTitle = _driver.FindElement(By.CssSelector("[data-tid='Title']"));
 
@@ -62,7 +70,7 @@ public class Tests
 
         var communitiesLink = _driver.FindElement(By.CssSelector("[data-tid='SidePageBody'] [data-tid='Community']"));
         communitiesLink.Click();
-        _wait.Until(ExpectedConditions.UrlToBe("https://staff-testing.testkontur.ru/communities"));
+        _wait.Until(ExpectedConditions.UrlToBe(COMMUNITIES_URL));
 
         var communitiesPageTitle = _driver.FindElement(By.CssSelector("[data-tid='Title']"));
 
@@ -73,7 +81,7 @@ public class Tests
     [Test]
     public void AddFolderButton_TriggersModalWindow_InFileSection()
     {
-        _driver.Navigate().GoToUrl("https://staff-testing.testkontur.ru/files");
+        _driver.Navigate().GoToUrl(FILES_URL);
 
         var dropdownButton = _driver.FindElement(By.CssSelector("button[type='button']"));
         dropdownButton.Click();
@@ -114,16 +122,16 @@ public class Tests
     [Test]
     public void TabUrl_ShouldPersistState_AfterPageRefresh() 
     {
-        _driver.Navigate().GoToUrl("https://staff-testing.testkontur.ru/documents");
+        _driver.Navigate().GoToUrl(DOCUMENTS_URL);
         _wait.Until(ExpectedConditions.ElementIsVisible(By.CssSelector("[data-tid='Tabs']")));
 
         var tasksTab = _driver.FindElement(By.CssSelector("[data-tid='Tabs'] a[href*='activeTab=Tasks']"));
         tasksTab.Click();
-        _wait.Until(ExpectedConditions.UrlToBe("https://staff-testing.testkontur.ru/documents?activeTab=Tasks"));
+        _wait.Until(ExpectedConditions.UrlToBe(TASKS_TAB_URL));
 
         _driver.Navigate().Refresh();
 
-        Assert.That(_driver.Url, Is.EqualTo("https://staff-testing.testkontur.ru/documents?activeTab=Tasks"),
+        Assert.That(_driver.Url, Is.EqualTo(TASKS_TAB_URL),
         "URL не соответствует ожидаемому для вкладки 'Задания'");
     }
 
@@ -132,9 +140,10 @@ public class Tests
     {
         var expectedName = $"AT_Новое_Сообщество_{DateTime.Now:yyyyMMdd_HHmmss}";
 
-        _driver.Navigate().GoToUrl("https://staff-testing.testkontur.ru/communities");
+        _driver.Navigate().GoToUrl(COMMUNITIES_URL);
 
-        var createButton = _driver.FindElement(By.CssSelector("[data-tid='PageHeader']")).FindElement(By.XPath("//button[contains(text(),'СОЗДАТЬ')]"));
+        var createButton = _driver.FindElement(By.CssSelector("[data-tid='PageHeader']"))
+                                    .FindElement(By.XPath("//button[contains(text(),'СОЗДАТЬ')]"));
         createButton.Click();
         _wait.Until(ExpectedConditions.ElementIsVisible(By.CssSelector("[data-tid='Name']")));
 
@@ -148,7 +157,7 @@ public class Tests
         var actualName = _driver.FindElement(By.CssSelector("[data-tid='Title'] a"));
 
         Assert.That(actualName.Text, Is.EqualTo(expectedName), 
-        "На странице редактирования сообщества нет expectedName в заголовке 'Управление сообществом «actualName»'");
+        "В заголовке 'Управление сообществом «_Name»' expectedName и actualName не совпадают");
     }   
 
     [TearDown]
