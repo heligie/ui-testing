@@ -178,9 +178,9 @@ public class Tests
 
         var actualName = _driver.FindElement(By.CssSelector("[data-tid='Title'] a"));
 
+        DeleteCommunity();
+
         Assert.That(actualName.Text, Is.EqualTo(expectedName), 
         "В заголовке 'Управление сообществом «_Name»' expectedName и actualName не совпадают");
-
-        DeleteCommunity();
     }   
 }
