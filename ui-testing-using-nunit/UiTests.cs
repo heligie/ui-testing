@@ -127,6 +127,30 @@ public class Tests
         "URL не соответствует ожидаемому для вкладки 'Задания'");
     }
 
+    [Test]
+    public void CreateCommunity_ShouldSucceed_WhenDataIsValid() 
+    {
+        var expectedName = $"AT_Новое_Сообщество_{DateTime.Now:yyyyMMdd_HHmmss}";
+
+        _driver.Navigate().GoToUrl("https://staff-testing.testkontur.ru/communities");
+
+        var createButton = _driver.FindElement(By.CssSelector("[data-tid='PageHeader']")).FindElement(By.XPath("//button[contains(text(),'СОЗДАТЬ')]"));
+        createButton.Click();
+        _wait.Until(ExpectedConditions.ElementIsVisible(By.CssSelector("[data-tid='Name']")));
+
+        var nameInput = _driver.FindElement(By.CssSelector("[data-tid='Name'] textarea[placeholder='Название сообщества']"));
+        nameInput.SendKeys(expectedName);
+        
+        var submitButton = _driver.FindElement(By.CssSelector("[data-tid='CreateButton'] button[type='button']"));
+        submitButton.Click();
+        _wait.Until(ExpectedConditions.ElementIsVisible(By.CssSelector("[data-tid='PageHeader'] [data-tid='Title']")));
+
+        var actualName = _driver.FindElement(By.CssSelector("[data-tid='Title'] a"));
+
+        Assert.That(actualName.Text, Is.EqualTo(expectedName), 
+        "На странице редактирования сообщества нет expectedName в заголовке 'Управление сообществом «actualName»'");
+    }   
+
     [TearDown]
     public void TearDown()
     {
