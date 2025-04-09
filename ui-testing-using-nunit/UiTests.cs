@@ -94,6 +94,24 @@ public class Tests
         });
     }
 
+    [Test]
+    public void ComboBox_ShouldDisplayRequestedItem() 
+    {
+        var query = "user1";
+
+        var searchBar = _driver.FindElement(By.CssSelector("[data-tid='SearchBar']"));
+        searchBar.Click();
+
+        var searchInput = _driver.FindElement(By.CssSelector("input[placeholder='Поиск сотрудника, подразделения, сообщества, мероприятия']"));
+        searchInput.SendKeys(query);
+        _wait.Until(ExpectedConditions.ElementIsVisible(By.CssSelector("[data-tid='ComboBoxMenu__item']")));
+
+        var comboBoxItem = _driver.FindElement(By.CssSelector("[data-tid='ComboBoxMenu__item']"));
+
+        Assert.That(comboBoxItem.Text, Does.Contain(query),
+        "Комбобокс не отображает запрашиваемое значение");
+    }
+
     [TearDown]
     public void TearDown()
     {
