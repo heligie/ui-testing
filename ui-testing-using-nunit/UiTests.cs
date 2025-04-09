@@ -14,7 +14,7 @@ public class Tests
     public void Setup()
     {
         _driver = new ChromeDriver();
-        _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(15);
+        _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
         _wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(15));
 
         Login("", "");
