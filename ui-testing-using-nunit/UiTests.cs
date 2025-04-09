@@ -74,7 +74,6 @@ public class Tests
     public void AddFolderButton_TriggersModalWindow_InFileSection()
     {
         _driver.Navigate().GoToUrl("https://staff-testing.testkontur.ru/files");
-        _wait.Until(ExpectedConditions.UrlToBe("https://staff-testing.testkontur.ru/files"));
 
         var dropdownButton = _driver.FindElement(By.CssSelector("button[type='button']"));
         dropdownButton.Click();
@@ -110,6 +109,22 @@ public class Tests
 
         Assert.That(comboBoxItem.Text, Does.Contain(query),
         "Комбобокс не отображает запрашиваемое значение");
+    }
+
+    [Test]
+    public void TabUrl_ShouldPersistState_AfterPageRefresh() 
+    {
+        _driver.Navigate().GoToUrl("https://staff-testing.testkontur.ru/documents");
+        _wait.Until(ExpectedConditions.ElementIsVisible(By.CssSelector("[data-tid='Tabs']")));
+
+        var tasksTab = _driver.FindElement(By.CssSelector("[data-tid='Tabs'] a[href*='activeTab=Tasks']"));
+        tasksTab.Click();
+        _wait.Until(ExpectedConditions.UrlToBe("https://staff-testing.testkontur.ru/documents?activeTab=Tasks"));
+
+        _driver.Navigate().Refresh();
+
+        Assert.That(_driver.Url, Is.EqualTo("https://staff-testing.testkontur.ru/documents?activeTab=Tasks"),
+        "URL не соответствует ожидаемому для вкладки 'Задания'");
     }
 
     [TearDown]
